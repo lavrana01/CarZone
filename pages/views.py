@@ -20,7 +20,7 @@ def home(request):
         'city_search': city_search,
         'year_search': year_search,
         'body_style_search': body_style_search,
-           }
+        }
     return render(request, 'pages/home.html', data)
 
 

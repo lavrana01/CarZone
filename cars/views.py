@@ -2,6 +2,7 @@ from django.http import request
 from django.shortcuts import get_object_or_404, render
 from .models import Car
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
 
 # Create your views here.
 
@@ -10,8 +11,17 @@ def cars(request):
     paginator = Paginator(cars, 4)
     page = request.GET.get('page')
     paged_cars = paginator.get_page(page)
+    model_search = Car.objects.values_list('model', flat=True).distinct()
+    city_search = Car.objects.values_list('city', flat=True).distinct()
+    year_search = Car.objects.values_list('year', flat=True).distinct()
+    body_style_search = Car.objects.values_list('body_style', flat=True).distinct()
+    
     data = {
         'cars': paged_cars,
+        'model_search': model_search,
+        'city_search': city_search,
+        'year_search': year_search,
+        'body_style_search': body_style_search,
     }
     return render(request, 'cars/cars.html', data)
 
@@ -28,7 +38,7 @@ def search(request):
     if 'keyword' in request.GET:
         keyword = request.GET['keyword']
         if keyword:
-            cars = cars.filter(description__icontains=keyword)
+            cars = cars.filter(Q(description__icontains=keyword) | Q(car_title__icontains=keyword))
 
     if 'model' in request.GET:
         model = request.GET['model']
